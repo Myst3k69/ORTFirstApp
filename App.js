@@ -22,11 +22,11 @@ export default function App() {
     "Faire un triathlon",
   ];
 
-  const [goal, setGoal] = useState("Je veux être plus riche qu'Elon");
+  const [goal, setGoal] = useState({});
   const [goalsList, setGoalsList] = useState([]);
 
   const handleChangeText = (e) => {
-    setGoal(e);
+    setGoal({ task: e, id: Math.random().toString() });
   };
 
   const handleOnPress = () => {
@@ -34,9 +34,10 @@ export default function App() {
     setGoal("");
   };
 
-  const deleteItem = (index) => {
-    const newGoalList = goalsList.splice(index + 1, 1);
-    setGoalsList(newGoalList);
+  const deleteItem = (id) => {
+    setGoalsList((currentGoalsList) => {
+      return currentGoalsList.filter((goal) => goal.id !== id);
+    });
   };
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function App() {
       <View style={styles.formFields}>
         <TextInput
           style={styles.input}
-          value={goal}
+          value={goal.task}
           clearTextOnFocus={true}
           onChangeText={(e) => handleChangeText(e)}
           placeholder={"Je veux être plus riche qu'Elon"}
@@ -67,12 +68,12 @@ export default function App() {
               <View style={styles.goalItemBackground}>
                 <Text key={index} style={styles.goalItemText}>
                   {"\u2022"}
-                  {goal}
+                  {goal.task}
                 </Text>
               </View>
               <Text
                 style={styles.deleteCross}
-                onPress={() => deleteItem(index)}
+                onPress={() => deleteItem(goal.id)}
               >
                 x
               </Text>
