@@ -33,9 +33,14 @@ export default function App() {
   const [goal, setGoal] = useState({});
   const [goalsList, setGoalsList] = useState(sampleGoals);
   const [modalVisible, setModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
 
   const handleChangeText = (e) => {
     setGoal({ task: e, id: Math.random().toString() });
+  };
+
+  const handleUpdateText = (e, goal) => {
+    setGoal({ task: e, id: goal.id });
   };
 
   const handleOnPress = () => {
@@ -49,12 +54,67 @@ export default function App() {
     });
   };
 
+  const handleUpdateGoal = (goal) => {
+    console.log("update goal content");
+    setUpdateModalVisible(true);
+    setGoal({ task: goal.task, id: goal.id });
+  };
+
+  const handleUpdateGoalText = (item) => {
+    //bad method
+    goalsList.map((goal) => {
+      goal.id == item.id && (goal.task = item.task);
+    });
+  };
   useEffect(() => {
     console.log("goalList :", goalsList);
   }, [goalsList]);
 
   return (
     <>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={updateModalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setUpdateModalVisible(!updateModalVisible);
+        }}
+      >
+        <View style={styles.modaleContainer}>
+          <Image
+            source={require("./assets/target4.png")}
+            style={{ width: 120, height: 120, alignSelf: "center" }}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={goal.task}
+            clearTextOnFocus={false}
+            onChangeText={(e) => handleUpdateText(e, goal)}
+            placeholder={"Je veux être plus riche qu'Elon"}
+          />
+          <View style={styles.pressable}>
+            <Pressable
+              style={[styles.button, styles.buttonOpen]}
+              onPress={() => {
+                handleUpdateGoalText(goal);
+                setUpdateModalVisible(false);
+              }}
+            >
+              <Text style={[styles.textStyle, styles.button]}>
+                Update content
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonOpen]}
+              onPress={() => setUpdateModalVisible(false)}
+            >
+              <Text style={[styles.textStyle, styles.button]}>Cancel </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       <Modal
         animationType="slide"
         transparent={true}
@@ -97,9 +157,18 @@ export default function App() {
         </View>
       </Modal>
       <View style={styles.container}>
-        {!modalVisible && (
+        {!modalVisible && !updateModalVisible && (
           <>
             <View style={styles.formFields}>
+              <Image
+                source={require("./assets/target4.png")}
+                style={{
+                  width: 120,
+                  height: 120,
+                  alignSelf: "center",
+                  marginBottom: 20,
+                }}
+              />
               <Pressable
                 style={[styles.button, styles.buttonOpen]}
                 onPress={() => setModalVisible(true)}
@@ -112,9 +181,12 @@ export default function App() {
                 goalsList.map((goal, index) => (
                   <View style={styles.goalItem}>
                     <View style={styles.goalItemBackground}>
-                      <Text key={index} style={styles.goalItemText}>
-                        {"\u2022"}
-                        {goal.task}
+                      <Text
+                        key={index}
+                        style={styles.goalItemText}
+                        onPress={() => handleUpdateGoal(goal)}
+                      >
+                        {"\u2022"} {goal.task}
                       </Text>
                     </View>
                     <Text
@@ -185,7 +257,7 @@ const styles = StyleSheet.create({
   },
   deleteCross: {
     fontSize: 35,
-    marginHorizontal: 5,
+    marginLeft: 10,
     alignSelf: "center",
     color: "#C71FE5",
     borderRadius: 5,
