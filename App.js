@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -6,24 +5,34 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Modal,
+  Pressable,
+  Image,
 } from "react-native";
 
 export default function App() {
   const sampleGoals = [
-    "Faire les courses",
-    "Aller à la salle de sport 3 fois par semaine",
-    "Monter à plus de 5000m d altitude",
-    "Acheter mon premier appartement",
-    "Perdre 5 kgs",
-    "Gagner en productivité",
-    "Apprendre un nouveau langage",
-    "Faire une mission en freelance",
-    "Organiser un meetup autour de la tech",
-    "Faire un triathlon",
+    { task: "Faire les courses", id: Math.random().toString() },
+    {
+      task: "Aller à la salle de sport 3 fois par semaine",
+      id: Math.random().toString(),
+    },
+    { task: "Monter à plus de 5000m d altitude", id: Math.random().toString() },
+    { task: "Acheter mon premier appartement", id: Math.random().toString() },
+    { task: "Perdre 5 kgs", id: Math.random().toString() },
+    { task: "Gagner en productivité", id: Math.random().toString() },
+    { task: "Apprendre un nouveau langage", id: Math.random().toString() },
+    { task: "Faire une mission en freelance", id: Math.random().toString() },
+    {
+      task: "Organiser un meetup autour de la tech",
+      id: Math.random().toString(),
+    },
+    { task: "Faire un triathlon", id: Math.random().toString() },
   ];
 
   const [goal, setGoal] = useState({});
-  const [goalsList, setGoalsList] = useState([]);
+  const [goalsList, setGoalsList] = useState(sampleGoals);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleChangeText = (e) => {
     setGoal({ task: e, id: Math.random().toString() });
@@ -45,52 +54,94 @@ export default function App() {
   }, [goalsList]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formFields}>
-        <TextInput
-          style={styles.input}
-          value={goal.task}
-          clearTextOnFocus={true}
-          onChangeText={(e) => handleChangeText(e)}
-          placeholder={"Je veux être plus riche qu'Elon"}
-        />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={(e) => handleOnPress(e)}
-        >
-          <Text>Add</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.goalListStyle}>
-        {goalsList &&
-          goalsList.map((goal, index) => (
-            <View style={styles.goalItem}>
-              <View style={styles.goalItemBackground}>
-                <Text key={index} style={styles.goalItemText}>
-                  {"\u2022"}
-                  {goal.task}
-                </Text>
-              </View>
-              <Text
-                style={styles.deleteCross}
-                onPress={() => deleteItem(goal.id)}
+    <>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modaleContainer}>
+          <Image
+            source={require("./assets/target4.png")}
+            style={{ width: 120, height: 120, alignSelf: "center" }}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={goal.task}
+            clearTextOnFocus={true}
+            onChangeText={(e) => handleChangeText(e)}
+            placeholder={"Je veux être plus riche qu'Elon"}
+          />
+          <View style={styles.pressable}>
+            <Pressable
+              style={[styles.button, styles.buttonOpen]}
+              onPress={(e) => {
+                handleOnPress(e);
+                setModalVisible(false);
+              }}
+            >
+              <Text style={[styles.textStyle, styles.button]}>Add Goal </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonOpen]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={[styles.textStyle, styles.button]}>Cancel </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      <View style={styles.container}>
+        {!modalVisible && (
+          <>
+            <View style={styles.formFields}>
+              <Pressable
+                style={[styles.button, styles.buttonOpen]}
+                onPress={() => setModalVisible(true)}
               >
-                x
-              </Text>
+                <Text style={styles.button}>Add a new goal </Text>
+              </Pressable>
             </View>
-          ))}
+            <View style={styles.goalListStyle}>
+              {goalsList &&
+                goalsList.map((goal, index) => (
+                  <View style={styles.goalItem}>
+                    <View style={styles.goalItemBackground}>
+                      <Text key={index} style={styles.goalItemText}>
+                        {"\u2022"}
+                        {goal.task}
+                      </Text>
+                    </View>
+                    <Text
+                      key={index}
+                      style={styles.deleteCross}
+                      onPress={() => deleteItem(goal.id)}
+                    >
+                      x
+                    </Text>
+                  </View>
+                ))}
+            </View>
+          </>
+        )}
       </View>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column",
+    backgroundColor: "#4C068D",
+    flex: 1,
   },
   input: {
     height: 50,
@@ -98,19 +149,23 @@ const styles = StyleSheet.create({
     margin: 5,
     borderWidth: 1,
     padding: 10,
+    alignSelf: "center",
+    backgroundColor: "#9370DB",
+    color: "#4C068D",
+    fontSize: 20,
   },
   button: {
-    backgroundColor: "#DDDDDD",
-    width: 100,
+    //backgroundColor: "#DDDDDD",
+    color: "#9370DB",
+    fontWeight: "bold",
     height: 50,
     padding: 10,
     justifyContent: "center",
     alignItems: "center",
+    marginRight: 10,
+    fontSize: 20,
   },
-  formFields: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+
   goalListStyle: {
     marginTop: 25,
     flexDirection: "column",
@@ -119,13 +174,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     padding: 5,
     marginTop: 10,
-
     color: "#FFFfFF",
   },
   goalItemBackground: {
     borderRadius: 5,
-    backgroundColor: "#5B0C83",
+    backgroundColor: "#9370DB",
     marginVertical: 5,
+    minWidth: "85%",
+    maxWidth: "90%",
   },
   deleteCross: {
     fontSize: 35,
@@ -138,4 +194,16 @@ const styles = StyleSheet.create({
   goalItem: {
     flexDirection: "row",
   },
+  pressable: {
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "center",
+  },
+  modaleContainer: {
+    justifyContent: "center",
+    alignContent: "center",
+    flex: 1,
+    backgroundColor: "#4C068D",
+  },
+  buttonText: {},
 });
